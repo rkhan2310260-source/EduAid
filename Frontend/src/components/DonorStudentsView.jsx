@@ -119,9 +119,9 @@ export default function DonorStudentsView() {
       </div>
 
       <div className="p-6">
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
           {/* Students List - Left Side */}
-          <div className={`${selectedStudent ? "w-1/3 min-w-[400px]" : "w-full"} transition-all duration-300`}>
+          <div className={`${selectedStudent ? "w-full lg:w-96 flex-shrink-0" : "w-full"} transition-all duration-300`}>
             <div className="grid gap-4">
               {filterStudents().length === 0 ? (
                 <div className="text-center py-12">
@@ -129,58 +129,76 @@ export default function DonorStudentsView() {
                   <p className="text-sm text-gray-400 mt-2">Students you sponsor will appear here.</p>
                 </div>
               ) : (
-                filterStudents().map((student) => (
-                <div
-                  key={student.id}
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    selectedStudent?.id === student.id
-                      ? "border-green-600 bg-green-50"
-                      : "border-gray-200 hover:border-green-300 hover:bg-gray-50"
-                  }`}
-                  onClick={() => handleViewProgress(student)}
-                  data-testid={`student-card-${student.id}`}
-                >
-                  <div className="flex gap-4">
-                    <img
-                      src={student.profileImage ? `http://localhost:8081${student.profileImage}` : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop'}
-                      alt={student.studentName || student.name}
-                      className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
-                      onError={(e) => {
-                        e.target.src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop';
-                      }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg">{student.studentName}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{student.classLevel}</p>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <MapPin size={14} className="flex-shrink-0" />
-                        <span className="truncate">{getSchoolName(student.schoolId)}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                        <Calendar size={14} />
-                        <span>{student.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'} years old</span>
+                filterStudents().map((student) => {
+                  const isSelected = (selectedStudent?.id && selectedStudent.id === student.id) || 
+                                     (selectedStudent?.studentId && selectedStudent.studentId === (student.studentId || student.id));
+                  return (
+                    <div
+                      key={student.id || student.studentId}
+                      className={`border rounded-xl p-4 cursor-pointer transition-all overflow-hidden ${
+                        isSelected
+                          ? "border-green-600 bg-green-50 shadow-sm ring-1 ring-green-600"
+                          : "border-gray-200 hover:border-green-300 hover:bg-gray-50"
+                      }`}
+                      onClick={() => handleViewProgress(student)}
+                      data-testid={`student-card-${student.id || student.studentId}`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={student.profileImage ? `http://localhost:8081${student.profileImage}` : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop'}
+                          alt={student.studentName || student.name}
+                          className={`${selectedStudent ? "w-14 h-14" : "w-20 h-20"} rounded-lg object-cover flex-shrink-0`}
+                          onError={(e) => {
+                            e.target.src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop';
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-base sm:text-lg text-gray-900 truncate">{student.studentName || student.name}</h3>
+                          <p className="text-sm text-green-700 font-medium mb-1">Class {student.classLevel}</p>
+                          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 truncate">
+                            <MapPin size={13} className="flex-shrink-0" />
+                            <span className="truncate">{getSchoolName(student.schoolId)}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-500 mt-1">
+                            <Calendar size={13} className="flex-shrink-0" />
+                            <span>{student.dateOfBirth ? new Date().getFullYear() - new Date(student.dateOfBirth).getFullYear() : 'N/A'} years old</span>
+                          </div>
+                        </div>
+                        {selectedStudent ? (
+                          <div className="flex-shrink-0">
+                            {isSelected ? (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-600 text-white shadow-sm">
+                                Viewing
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-700 bg-green-100">
+                                View
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewProgress(student);
+                            }}
+                            className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 h-fit flex-shrink-0 text-sm"
+                            data-testid={`button-view-progress-${student.id || student.studentId}`}
+                          >
+                            View Progress
+                          </button>
+                        )}
                       </div>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewProgress(student);
-                      }}
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 h-fit flex-shrink-0"
-                      data-testid={`button-view-progress-${student.id}`}
-                    >
-                      View Progress
-                    </button>
-                  </div>
-                </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
 
           {/* Student Details Panel - Right Side */}
           {selectedStudent && (
-            <div className="w-2/3 border-l pl-6 transition-all duration-300">
+            <div className="flex-1 min-w-0 w-full border-t lg:border-t-0 lg:border-l border-gray-200 pt-6 lg:pt-0 lg:pl-6 transition-all duration-300">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold">Student Profile & Progress</h2>
                 <button
