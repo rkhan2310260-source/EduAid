@@ -1,4 +1,4 @@
-﻿package com.example.EduAid;
+package com.example.EduAid;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

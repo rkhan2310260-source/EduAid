@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.controller;
+package com.example.EduAid.controller;
 
 import com.example.EduAid.Dto.NgoGamificationDTO;
 import com.example.EduAid.service.NgoGamificationService;

@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.repository;
+package com.example.EduAid.repository;
 
 import com.example.EduAid.Entity.Student;
 import com.example.EduAid.Entity.Student.ClassLevel;

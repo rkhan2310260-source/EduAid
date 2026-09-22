@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.repository;
+package com.example.EduAid.repository;
 
 import com.example.EduAid.Entity.UserProfile;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.Dto;
+package com.example.EduAid.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

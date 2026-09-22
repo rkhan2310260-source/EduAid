@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.Security;
+package com.example.EduAid.Security;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import jakarta.servlet.FilterChain;

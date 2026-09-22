@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.repository;
+package com.example.EduAid.repository;
 
 import com.example.EduAid.Entity.NgoProjectDonations;
 import org.springframework.data.jpa.repository.JpaRepository;

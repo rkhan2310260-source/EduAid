@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.controller;
+package com.example.EduAid.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

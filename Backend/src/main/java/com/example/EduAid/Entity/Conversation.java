@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.Entity;
+package com.example.EduAid.Entity;
 
 import lombok.*;
 import jakarta.persistence.*;

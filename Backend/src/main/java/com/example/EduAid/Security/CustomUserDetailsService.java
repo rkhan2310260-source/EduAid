@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.Security;
+package com.example.EduAid.Security;
 
 import com.example.EduAid.Entity.User;
 import com.example.EduAid.repository.UserRepository;

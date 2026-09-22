@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.Entity;
+package com.example.EduAid.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.controller;
+package com.example.EduAid.controller;
 
 import com.example.EduAid.Dto.UserProfileDto;
 import com.example.EduAid.service.UserProfileService;

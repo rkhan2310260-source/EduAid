@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.controller;
+package com.example.EduAid.controller;
 
 import com.example.EduAid.Dto.ConversationDto;
 import com.example.EduAid.service.ConversationService;

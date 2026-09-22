@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.Security;
+package com.example.EduAid.Security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.controller;
+package com.example.EduAid.controller;
 
 import com.example.EduAid.Dto.AuthDTO;
 import com.example.EduAid.Dto.AuthResponse;

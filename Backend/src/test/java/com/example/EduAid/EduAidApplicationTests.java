@@ -1,4 +1,4 @@
-﻿package com.example.EduAid;
+package com.example.EduAid;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

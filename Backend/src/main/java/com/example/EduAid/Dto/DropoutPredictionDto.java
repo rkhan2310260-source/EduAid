@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.Dto;
+package com.example.EduAid.Dto;
 
 import com.example.EduAid.Entity.DropoutPrediction;
 import lombok.AllArgsConstructor;

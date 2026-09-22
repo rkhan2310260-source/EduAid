@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.service;
+package com.example.EduAid.service;
 
 import com.example.EduAid.Dto.NgoDto;
 import com.example.EduAid.Entity.Ngo;

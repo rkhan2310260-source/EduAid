@@ -1,4 +1,4 @@
-﻿package com.example.EduAid.Dto;
+package com.example.EduAid.Dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
