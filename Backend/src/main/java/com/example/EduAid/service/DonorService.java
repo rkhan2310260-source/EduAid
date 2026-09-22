@@ -1,0 +1,73 @@
+﻿package com.example.EduAid.service;
+
+import com.example.EduAid.Entity.Donor;
+import com.example.EduAid.Entity.User;
+import com.example.EduAid.Dto.DonorDto;
+import com.example.EduAid.repository.DonorRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class DonorService {
+
+    private final DonorRepository donorRepository;
+
+    private DonorDto toDTO(Donor donor) {
+        DonorDto dto = new DonorDto();
+        dto.setDonorId(donor.getDonorId());
+        dto.setUserId(donor.getUser().getUserId());
+        dto.setDonorName(donor.getDonorName());
+        dto.setTaxId(donor.getTaxId());
+        dto.setIsAnonymous(donor.getIsAnonymous());
+
+        return dto;
+    }
+
+    private Donor toEntity(DonorDto dto) {
+        Donor donor = new Donor();
+        donor.setDonorId(dto.getDonorId());
+        donor.setDonorName(dto.getDonorName());
+        donor.setTaxId(dto.getTaxId());
+        donor.setIsAnonymous(dto.getIsAnonymous() != null ? dto.getIsAnonymous() : false);
+       
+        // Link user only by ID
+        if (dto.getUserId() != null) {
+            User user = new User();
+            user.setUserId(dto.getUserId());
+            donor.setUser(user);
+        }
+
+        return donor;
+    }
+
+    public DonorDto createDonor(DonorDto donorDto) {
+        Donor donor = toEntity(donorDto);
+        Donor saved = donorRepository.save(donor);
+        return toDTO(saved);
+    }
+
+    public Optional<DonorDto> getByUserId(Integer userId) {
+        return donorRepository.findByUserId(userId).map(this::toDTO);
+    }
+
+    public List<DonorDto> getAnonymousDonors() {
+        return donorRepository.findAllAnonymousDonors()
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public List<DonorDto> getAllDonors() {
+        return donorRepository.findAll()
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public Optional<DonorDto> getDonorById(Integer donorId) {
+        return donorRepository.findById(donorId).map(this::toDTO);
+    }
+}

@@ -1,0 +1,153 @@
+﻿package com.example.EduAid.controller;
+
+import com.example.EduAid.Dto.SchoolDto;
+import com.example.EduAid.Entity.School;
+import com.example.EduAid.service.SchoolService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/schools")
+@CrossOrigin(origins = "*")
+public class SchoolController {
+
+    private final SchoolService schoolService;
+
+    public SchoolController(SchoolService schoolService) {
+        this.schoolService = schoolService;
+    }
+
+    // -------------------- CRUD --------------------
+
+    @PostMapping
+    public ResponseEntity<SchoolDto> createSchool(@Valid @RequestBody SchoolDto schoolDto) {
+        SchoolDto createdSchool = schoolService.createSchool(schoolDto);
+        return new ResponseEntity<>(createdSchool, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SchoolDto>> getAllSchools() {
+        List<SchoolDto> schools = schoolService.getAllSchools();
+        return new ResponseEntity<>(schools, HttpStatus.OK);
+    }
+
+    @GetMapping("/{schoolId}")
+    public ResponseEntity<SchoolDto> getSchoolById(@PathVariable Integer schoolId) {
+        SchoolDto school = schoolService.getSchoolById(schoolId);
+        return new ResponseEntity<>(school, HttpStatus.OK);
+    }
+
+    @PutMapping("/{schoolId}")
+    public ResponseEntity<SchoolDto> updateSchool(@PathVariable Integer schoolId,
+                                                  @Valid @RequestBody SchoolDto schoolDto) {
+        SchoolDto updatedSchool = schoolService.updateSchool(schoolId, schoolDto);
+        return new ResponseEntity<>(updatedSchool, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{schoolId}")
+    public ResponseEntity<Void> deleteSchool(@PathVariable Integer schoolId) {
+        schoolService.deleteSchool(schoolId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // -------------------- STATUS & VERIFICATION --------------------
+
+    @PatchMapping("/{schoolId}/verification-status")
+    public ResponseEntity<SchoolDto> updateVerificationStatus(@PathVariable Integer schoolId,
+                                                              @RequestParam String verificationStatus) {
+        School.VerificationStatus status = School.VerificationStatus.valueOf(verificationStatus.toUpperCase());
+        SchoolDto updatedSchool = schoolService.updateVerificationStatus(schoolId, status);
+        return new ResponseEntity<>(updatedSchool, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{schoolId}/status")
+    public ResponseEntity<SchoolDto> updateSchoolStatus(@PathVariable Integer schoolId,
+                                                        @RequestParam String status) {
+        School.SchoolStatus schoolStatus = School.SchoolStatus.valueOf(status.toUpperCase());
+        SchoolDto updatedSchool = schoolService.updateSchoolStatus(schoolId, schoolStatus);
+        return new ResponseEntity<>(updatedSchool, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{schoolId}/verify")
+    public ResponseEntity<SchoolDto> verifySchool(@PathVariable Integer schoolId) {
+        SchoolDto verifiedSchool = schoolService.verifySchool(schoolId);
+        return new ResponseEntity<>(verifiedSchool, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{schoolId}/reject")
+    public ResponseEntity<SchoolDto> rejectSchool(@PathVariable Integer schoolId) {
+        SchoolDto rejectedSchool = schoolService.rejectSchool(schoolId);
+        return new ResponseEntity<>(rejectedSchool, HttpStatus.OK);
+    }
+
+    // -------------------- CUSTOM QUERY ENDPOINTS --------------------
+
+    @GetMapping("/search")
+    public ResponseEntity<List<SchoolDto>> searchSchoolsByName(@RequestParam String name) {
+        List<SchoolDto> schools = schoolService.findSchoolsByName(name);
+        return new ResponseEntity<>(schools, HttpStatus.OK);
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<SchoolDto>> getSchoolsByStatus(@PathVariable String status) {
+        School.SchoolStatus schoolStatus = School.SchoolStatus.valueOf(status.toUpperCase());
+        List<SchoolDto> schools = schoolService.findSchoolsByStatus(schoolStatus);
+        return new ResponseEntity<>(schools, HttpStatus.OK);
+    }
+
+    @GetMapping("/verification/{status}")
+    public ResponseEntity<List<SchoolDto>> getSchoolsByVerificationStatus(@PathVariable String status) {
+        School.VerificationStatus verificationStatus = School.VerificationStatus.valueOf(status.toUpperCase());
+        List<SchoolDto> schools = schoolService.findSchoolsByVerificationStatus(verificationStatus);
+        return new ResponseEntity<>(schools, HttpStatus.OK);
+    }
+
+    @GetMapping("/division/{divisionId}")
+    public ResponseEntity<List<SchoolDto>> getSchoolsByDivision(@PathVariable Integer divisionId) {
+        List<SchoolDto> schools = schoolService.findSchoolsByDivision(divisionId);
+        return new ResponseEntity<>(schools, HttpStatus.OK);
+    }
+
+    @GetMapping("/district/{districtId}")
+    public ResponseEntity<List<SchoolDto>> getSchoolsByDistrict(@PathVariable Integer districtId) {
+        List<SchoolDto> schools = schoolService.findSchoolsByDistrict(districtId);
+        return new ResponseEntity<>(schools, HttpStatus.OK);
+    }
+    
+    // AI FIX: Get total funds received from all donation sources
+    @GetMapping("/{schoolId}/total-funds-received")
+    public ResponseEntity<Double> getTotalFundsReceived(@PathVariable Integer schoolId) {
+        Double totalFunds = schoolService.getTotalFundsReceived(schoolId);
+        return new ResponseEntity<>(totalFunds, HttpStatus.OK);
+    }
+
+    // -------------------- IMAGE UPLOAD --------------------
+    @PostMapping("/{schoolId}/image")
+    public ResponseEntity<Map<String, String>> uploadSchoolImage(
+            @PathVariable Integer schoolId, 
+            @RequestParam("image") MultipartFile file) {
+        try {
+            System.out.println("Received image upload request for school ID: " + schoolId);
+            System.out.println("File name: " + file.getOriginalFilename());
+            System.out.println("File size: " + file.getSize());
+            System.out.println("File empty: " + file.isEmpty());
+            
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+            }
+            
+            String imagePath = schoolService.updateSchoolImage(schoolId, file);
+            return ResponseEntity.ok(Map.of("imagePath", imagePath));
+        } catch (Exception e) {
+            System.err.println("Error uploading image: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+}

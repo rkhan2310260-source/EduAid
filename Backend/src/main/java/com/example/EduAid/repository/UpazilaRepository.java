@@ -1,0 +1,29 @@
+﻿package com.example.EduAid.repository;
+
+import com.example.EduAid.Entity.Upazila;
+import com.example.EduAid.Entity.District;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface UpazilaRepository extends JpaRepository<Upazila, Integer> {
+
+    Optional<Upazila> findByUpazilaName(String upazilaName);
+
+    Optional<Upazila> findByUpazilaCode(String upazilaCode);
+
+    List<Upazila> findByDistrictDistrictId(Integer districtId);
+
+    boolean existsByUpazilaCode(String upazilaCode);
+
+    boolean existsByUpazilaName(String upazilaName);
+
+    @Query("SELECT u FROM Upazila u WHERE u.district.districtId = :districtId AND u.upazilaName = :upazilaName")
+    Optional<Upazila> findByDistrictAndName(@Param("districtId") Integer districtId,
+                                            @Param("upazilaName") String upazilaName);
+}
