@@ -142,6 +142,24 @@ export const SchoolProvider = ({ children }) => {
     }
   };
 
+  // Listen for payment completion messages from SSLCommerz popup window
+  useEffect(() => {
+    const handlePaymentMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === 'PAYMENT_COMPLETE') {
+        if (event.data.status === 'VALID') {
+          const currentSchoolId = schoolData?.schoolId || localStorage.getItem('schoolId');
+          if (currentSchoolId) {
+            console.log('SchoolContext: Payment completed successfully, refreshing school data...');
+            refreshData(currentSchoolId);
+          }
+        }
+      }
+    };
+    window.addEventListener('message', handlePaymentMessage);
+    return () => window.removeEventListener('message', handlePaymentMessage);
+  }, [schoolData?.schoolId]);
+
   // AI FIX: Calculate school statistics with backend total funds calculation
   const getSchoolStats = () => {
     const totalStudents = studentsData.length;

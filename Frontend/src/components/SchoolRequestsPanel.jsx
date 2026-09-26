@@ -99,7 +99,7 @@ function ResponseMessageForm({ requestId, onApprove, onReject }) {
 }
 
 // School view - shows received invitations with approve/reject actions
-export default function SchoolRequestsPanel({ schoolId, API_BASE_URL }) {
+export default function SchoolRequestsPanel({ schoolId, API_BASE_URL, onRequestHandled }) {
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -159,6 +159,7 @@ export default function SchoolRequestsPanel({ schoolId, API_BASE_URL }) {
         setConfirmModalOpen(true);
         
         fetchRequests();
+        if (onRequestHandled) onRequestHandled();
       } else {
         toast.error('Failed to accept invitation. Please try again.');
       }
@@ -193,6 +194,7 @@ export default function SchoolRequestsPanel({ schoolId, API_BASE_URL }) {
       if (response.ok) {
         toast.success('Invitation declined.');
         fetchRequests();
+        if (onRequestHandled) onRequestHandled();
       } else {
         toast.error('Failed to decline invitation.');
       }

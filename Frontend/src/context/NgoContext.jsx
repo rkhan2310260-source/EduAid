@@ -143,11 +143,29 @@ export const NgoProvider = ({ children }) => {
   
   // Manual initialization for dashboard components
   const initializeForNgo = (ngoId) => {
-    if (ngoId && !loading) {
+    if (ngoId) {
       console.log('NgoContext: Manual initialization for NGO', ngoId);
       fetchNgoData(ngoId);
     }
   };
+
+  // Listen for payment completion messages from SSLCommerz popup window
+  useEffect(() => {
+    const handlePaymentMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === 'PAYMENT_COMPLETE') {
+        if (event.data.status === 'VALID') {
+          const ngoId = localStorage.getItem('ngoId');
+          if (ngoId) {
+            console.log('NgoContext: Payment completed successfully, refreshing NGO data...');
+            fetchNgoData(ngoId);
+          }
+        }
+      }
+    };
+    window.addEventListener('message', handlePaymentMessage);
+    return () => window.removeEventListener('message', handlePaymentMessage);
+  }, []);
   
   const refreshGamificationData = async (ngoId) => {
     if (!ngoId) return;

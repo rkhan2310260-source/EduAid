@@ -34,6 +34,7 @@ export default function DonorDonationDialog({
 }) {
   const { toast } = useToast();
   const { refreshData } = useNgo();
+  const { refreshDonorData } = useDonor();
   const [formData, setFormData] = useState({
     amount: donationType === "student" ? "3000" : "",
     message: "",
@@ -172,12 +173,18 @@ export default function DonorDonationDialog({
         
         onOpenChange(false);
         
-        // Auto-refresh NGO data after successful payment initiation
-        const ngoId = localStorage.getItem('ngoId');
-        if (ngoId && refreshData) {
-          // Delay refresh to allow payment processing
+        // Auto-refresh NGO or donor data after payment initiation
+        const currentNgoId = localStorage.getItem('ngoId');
+        if (currentNgoId && refreshData) {
           setTimeout(() => {
-            refreshData(ngoId);
+            refreshData(currentNgoId);
+          }, 2000);
+        }
+
+        const currentDonorId = localStorage.getItem('donorId');
+        if (currentDonorId && refreshDonorData) {
+          setTimeout(() => {
+            refreshDonorData();
           }, 2000);
         }
         

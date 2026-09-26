@@ -372,6 +372,22 @@ const fetchGamificationData = async (donorId) => {
     refreshDonorData(); // Use the updated function that handles userId internally
   }, [refreshDonorData]);
 
+  // Listen for payment completion messages from SSLCommerz popup window
+  useEffect(() => {
+    const handlePaymentMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === 'PAYMENT_COMPLETE') {
+        if (event.data.status === 'VALID') {
+          console.log('DonorContext: Payment completed successfully, refreshing donor data...');
+          refreshDonorData();
+        }
+      }
+    };
+    window.addEventListener('message', handlePaymentMessage);
+    return () => window.removeEventListener('message', handlePaymentMessage);
+  }, [refreshDonorData]);
+
+
   const value = {
     donorData,
     donationsData,

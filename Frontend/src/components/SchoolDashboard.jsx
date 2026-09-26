@@ -174,15 +174,24 @@ export default function SchoolDashboard() {
     navigate(`/project-details/${projectId}`);
   };
 
-  const handleProjectCreation = async (projectData) => {
+  const handleProjectCreation = async (formData) => {
     try {
-      // AI FIX: Handle both regular project data and optional transparency data
+      const title = formData.project_title || formData.projectTitle;
+      const desc = formData.project_description || formData.projectDescription;
+      const typeId = formData.project_type_id || formData.projectTypeId;
+      const amount = formData.required_amount || formData.requiredAmount;
+
+      if (!title || !typeId) {
+        toast.error('Project title and type are required.');
+        return;
+      }
+
       const jsonData = {
         schoolId: parseInt(schoolId),
-        projectTitle: projectData.projectTitle,
-        projectDescription: projectData.projectDescription,
-        projectTypeId: projectData.projectTypeId,
-        requiredAmount: projectData.requiredAmount
+        projectTitle: title,
+        projectDescription: desc,
+        projectTypeId: parseInt(typeId),
+        requiredAmount: amount ? parseFloat(amount) : null
       };
       
       const response = await fetch(`${API_BASE_URL}/school-projects`, {
@@ -196,15 +205,26 @@ export default function SchoolDashboard() {
       if (response.ok) {
         const createdProject = await response.json();
         
-        // AI FIX: If transparency data exists, create transparency record
-        if (projectData.transparency) {
+        // Handle optional image upload
+        const projectImage = formData.project_image;
+        if (projectImage && projectImage.size > 0) {
+          const imageFormData = new FormData();
+          imageFormData.append('image', projectImage);
+          await fetch(`${API_BASE_URL}/school-projects/${createdProject.projectId}/image`, {
+            method: 'POST',
+            body: imageFormData,
+          }).catch(err => console.error('Image upload failed:', err));
+        }
+
+        // If transparency data exists, create transparency record
+        if (formData.transparency) {
           try {
             const transparencyResponse = await fetch(`${API_BASE_URL}/school-projects/${createdProject.projectId}/fund-transparency`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(projectData.transparency)
+              body: JSON.stringify(formData.transparency)
             });
             
             if (!transparencyResponse.ok) {
@@ -350,7 +370,7 @@ export default function SchoolDashboard() {
             <div className="flex justify-between items-center">
               <h1 className="text-2xl font-bold mb-1">Impact Overview</h1>
             </div>
-            <div className="grid grid-cols-3 gap-6 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">Funds Received</span>
@@ -362,6 +382,23 @@ export default function SchoolDashboard() {
                   <span className="text-2xl font-bold">{formatCurrency(schoolStats.totalFundsReceived)}</span>
                 </div>
                 <p className="text-sm text-gray-500 mt-1">{schoolStats.activeProjects} active projects</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">Funds Utilized</span>
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600">📊</span>
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold">{formatCurrency(schoolStats.totalFundsUtilized)}</span>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  {schoolStats.totalFundsReceived > 0 
+                    ? `${Math.round((schoolStats.totalFundsUtilized / schoolStats.totalFundsReceived) * 100)}% of received`
+                    : '0% of received'}
+                </p>
               </div>
 
               <div className="bg-gray-50 rounded-lg p-4">
@@ -387,10 +424,8 @@ export default function SchoolDashboard() {
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-bold">{schoolStats.totalProjects}</span>
                 </div>
-          
+                <p className="text-sm text-gray-500 mt-1">{schoolStats.activeProjects} active projects</p>
               </div>
-
-             
             </div>
           </div>
         </div>

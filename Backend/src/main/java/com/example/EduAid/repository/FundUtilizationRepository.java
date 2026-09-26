@@ -59,21 +59,37 @@ public interface FundUtilizationRepository extends JpaRepository<FundUtilization
 
     // Native query to get total amount utilized for projects that a donor has contributed to
     @Query(value = """
-        SELECT COALESCE(SUM(fu.amount_used), 0) FROM fund_utilization fu
-        WHERE fu.project_id IN (
-            SELECT DISTINCT d.project_id FROM donations d
-            WHERE d.donor_id = :donorId AND d.project_id IS NOT NULL AND d.payment_status = 'COMPLETED'
-        )
+        SELECT COALESCE(
+            (SELECT COALESCE(SUM(fu.amount_used), 0) FROM fund_utilization fu
+             WHERE fu.project_id IN (
+                 SELECT DISTINCT d.project_id FROM donations d
+                 WHERE d.donor_id = :donorId AND d.project_id IS NOT NULL AND d.payment_status = 'COMPLETED'
+             )), 0)
+        +
+        COALESCE(
+            (SELECT COALESCE(SUM(pu.amount_utilized), 0) FROM project_updates pu
+             WHERE pu.project_id IN (
+                 SELECT DISTINCT d.project_id FROM donations d
+                 WHERE d.donor_id = :donorId AND d.project_id IS NOT NULL AND d.payment_status = 'COMPLETED'
+             )), 0)
         """, nativeQuery = true)
     Double getTotalUtilizedForDonorProjects(@Param("donorId") Integer donorId);
 
     // Native query to get total amount utilized for projects that an NGO has contributed to
     @Query(value = """
-        SELECT COALESCE(SUM(fu.amount_used), 0) FROM fund_utilization fu
-        WHERE fu.project_id IN (
-            SELECT DISTINCT npd.project_id FROM ngo_project_donations npd
-            WHERE npd.ngo_id = :ngoId AND npd.project_id IS NOT NULL AND npd.payment_status = 'COMPLETED'
-        )
+        SELECT COALESCE(
+            (SELECT COALESCE(SUM(fu.amount_used), 0) FROM fund_utilization fu
+             WHERE fu.project_id IN (
+                 SELECT DISTINCT npd.project_id FROM ngo_project_donations npd
+                 WHERE npd.ngo_id = :ngoId AND npd.project_id IS NOT NULL AND npd.payment_status = 'COMPLETED'
+             )), 0)
+        +
+        COALESCE(
+            (SELECT COALESCE(SUM(pu.amount_utilized), 0) FROM project_updates pu
+             WHERE pu.project_id IN (
+                 SELECT DISTINCT npd.project_id FROM ngo_project_donations npd
+                 WHERE npd.ngo_id = :ngoId AND npd.project_id IS NOT NULL AND npd.payment_status = 'COMPLETED'
+             )), 0)
         """, nativeQuery = true)
     Double getTotalUtilizedForNgoProjects(@Param("ngoId") Integer ngoId);
 }

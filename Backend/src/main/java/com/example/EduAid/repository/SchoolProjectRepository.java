@@ -45,11 +45,20 @@ public interface SchoolProjectRepository extends JpaRepository<SchoolProject, In
            ") AS all_school_donations", nativeQuery = true)
     java.math.BigDecimal getTotalFundsReceivedBySchool(@Param("schoolId") Integer schoolId);
     
-    // Get total funds utilized for all projects of a school (from fund_utilization.amount_used)
-    @Query(value = "SELECT COALESCE(SUM(fu.amount_used), 0.0) FROM fund_utilization fu " +
-           "JOIN school_projects sp ON fu.project_id = sp.project_id " +
-           "WHERE sp.school_id = :schoolId", nativeQuery = true)
+    // Get total funds utilized for all projects of a school (from fund_utilization and project_updates)
+    @Query(value = """
+        SELECT COALESCE(
+            (SELECT COALESCE(SUM(fu.amount_used), 0.0) FROM fund_utilization fu 
+             JOIN school_projects sp ON fu.project_id = sp.project_id 
+             WHERE sp.school_id = :schoolId), 0.0)
+        +
+        COALESCE(
+            (SELECT COALESCE(SUM(pu.amount_utilized), 0.0) FROM project_updates pu 
+             JOIN school_projects sp ON pu.project_id = sp.project_id 
+             WHERE sp.school_id = :schoolId), 0.0)
+    """, nativeQuery = true)
     java.math.BigDecimal getTotalFundsUtilizedBySchool(@Param("schoolId") Integer schoolId);
+
 
     // Comprehensive filtering query for donor dashboard (includes both donor and NGO donations)
     @Query(value = """

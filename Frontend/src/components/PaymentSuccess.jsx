@@ -26,9 +26,25 @@ export default function PaymentSuccess() {
       setMessage('Payment status unknown.');
     }
 
+    // Determine target dashboard path based on stored role
+    const getDashboardPath = () => {
+      const ngoId = localStorage.getItem('ngoId');
+      if (ngoId) {
+        try {
+          const parsed = JSON.parse(ngoId);
+          return `/ngo-dashboard/${parsed.ngoId || parsed}`;
+        } catch {
+          return `/ngo-dashboard/${ngoId}`;
+        }
+      }
+      const schoolId = localStorage.getItem('schoolId');
+      if (schoolId) return `/dashboard/${schoolId}`;
+      return '/donor-dashboard';
+    };
+
     // Auto redirect after 5 seconds
     const timer = setTimeout(() => {
-      navigate('/donor-dashboard');
+      navigate(getDashboardPath());
     }, 5000);
 
     return () => clearTimeout(timer);
@@ -79,7 +95,7 @@ export default function PaymentSuccess() {
         
         <div className="space-y-3">
           <button
-            onClick={() => navigate('/donor-dashboard')}
+            onClick={() => navigate(getDashboardPath())}
             className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700"
           >
             Return to Dashboard

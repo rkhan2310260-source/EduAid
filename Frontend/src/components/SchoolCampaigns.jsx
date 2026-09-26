@@ -37,7 +37,9 @@ export default function SchoolCampaigns() {
     }
   };
 
-  // Fetch only approved campaigns for this school
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+
+  // Fetch only approved campaigns for this school and count pending invitations
   const fetchAcceptedCampaigns = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/ngo-project-requests/school/${schoolId}`);
@@ -48,6 +50,9 @@ export default function SchoolCampaigns() {
           .filter(req => req.status === 'APPROVED')
           .map(req => req.ngoProjectId);
         setAcceptedCampaigns(approvedIds);
+        
+        const pendingCount = requests.filter(req => req.status === 'PENDING').length;
+        setPendingRequestsCount(pendingCount);
       }
     } catch (error) {
       console.error('Error fetching approved campaigns:', error);
@@ -104,10 +109,39 @@ export default function SchoolCampaigns() {
 
       <div className="flex-1 overflow-auto">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">NGO Campaigns</h1>
               <p className="text-sm text-gray-500">Browse available NGO campaigns and manage invitations</p>
+            </div>
+
+            {/* Tab navigation */}
+            <div className="flex bg-gray-100 p-1 rounded-xl self-start sm:self-auto">
+              <button
+                onClick={() => setShowRequests(false)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  !showRequests 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Joined Campaigns ({filteredCampaigns.length})
+              </button>
+              <button
+                onClick={() => setShowRequests(true)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                  showRequests 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Invitations & Requests
+                {pendingRequestsCount > 0 && (
+                  <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                    {pendingRequestsCount}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
@@ -120,6 +154,10 @@ export default function SchoolCampaigns() {
               <SchoolRequestsPanel 
                 schoolId={schoolId} 
                 API_BASE_URL={API_BASE_URL} 
+                onRequestHandled={() => {
+                  fetchAcceptedCampaigns();
+                  fetchCampaigns();
+                }}
               />
             </div>
           ) : (

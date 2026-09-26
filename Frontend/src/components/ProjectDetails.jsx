@@ -90,6 +90,7 @@ export default function ProjectDetails() {
         });
         
         // Fetch fund utilizations for this project
+        let totalUtilizedFromFund = 0;
         const utilizationsResponse = await fetch(`${API_BASE_URL}/fund-utilization/project/${projectId}`);
         if (utilizationsResponse.ok) {
           const utilizationsData = await utilizationsResponse.json();
@@ -109,9 +110,8 @@ export default function ProjectDetails() {
           mappedUtilizations.sort((a, b) => new Date(b.date) - new Date(a.date));
           setUtilizations(mappedUtilizations);
           
-          // Calculate total utilized amount
-          const totalUtilized = utilizationsData.reduce((sum, util) => sum + (util.amountUsed || 0), 0);
-          setProject(prev => ({ ...prev, utilizedAmount: totalUtilized }));
+          totalUtilizedFromFund = utilizationsData.reduce((sum, util) => sum + (parseFloat(util.amountUsed) || 0), 0);
+          setProject(prev => ({ ...prev, utilizedAmount: totalUtilizedFromFund }));
         }
         
         // AI FIX: Fetch fund transparencies for this project
@@ -154,6 +154,9 @@ export default function ProjectDetails() {
           // Sort by date (newest first)
           mappedUpdates.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           setUpdates(mappedUpdates);
+
+          const totalUtilizedFromUpdates = updatesData.reduce((sum, u) => sum + (parseFloat(u.amountUtilized) || 0), 0);
+          setProject(prev => ({ ...prev, utilizedAmount: totalUtilizedFromFund + totalUtilizedFromUpdates }));
         }
         
         // AI FIX: Fetch donations using all-sources endpoint like SchoolReporting
