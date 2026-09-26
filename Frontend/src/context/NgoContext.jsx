@@ -137,10 +137,6 @@ export const NgoProvider = ({ children }) => {
   };
 
   const refreshData = (ngoId) => {
-    if (loading) {
-      console.log('NgoContext: Already loading, skipping refresh for NGO', ngoId);
-      return;
-    }
     console.log('NgoContext: Refreshing all data for NGO', ngoId);
     fetchNgoData(ngoId);
   };

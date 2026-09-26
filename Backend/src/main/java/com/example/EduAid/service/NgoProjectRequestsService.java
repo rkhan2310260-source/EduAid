@@ -181,11 +181,22 @@ public class NgoProjectRequestsService {
 
     // ===================== MAPPER METHODS =====================
     private NgoProjectRequestsDTO mapToDTO(NgoProjectRequests entity) {
+        // Resolve ngoId from the linked NgoProject for frontend navigation
+        Integer ngoId = null;
+        try {
+            ngoId = ngoProjectRepository.findById(entity.getNgoProjectId())
+                    .map(p -> p.getNgo() != null ? p.getNgo().getNgoId() : null)
+                    .orElse(null);
+        } catch (Exception e) {
+            System.err.println("Could not resolve ngoId for request " + entity.getRequestId() + ": " + e.getMessage());
+        }
+
         return NgoProjectRequestsDTO.builder()
                 .requestId(entity.getRequestId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .ngoProjectId(entity.getNgoProjectId())
+                .ngoId(ngoId)
                 .schoolId(entity.getSchoolId())
                 .requestType(entity.getRequestType() != null ? entity.getRequestType().name() : null)
                 .status(entity.getStatus() != null ? entity.getStatus().name() : null)

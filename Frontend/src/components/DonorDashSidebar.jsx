@@ -93,7 +93,7 @@ export default function DonorDashSidebar() {
       <div className="flex justify-center items-center gap-2 mb-2 ">
       
        
-        <img src="/Logo_white.svg" alt="" className='h-8'/>
+        <img src="/Eduaid white logo.png" alt="EduAid" className='h-8'/>
          
        
       </div>

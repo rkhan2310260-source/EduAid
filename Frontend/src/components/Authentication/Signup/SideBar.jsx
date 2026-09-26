@@ -45,7 +45,7 @@ const Sidebar = ({ currentPath }) => {
     <div className="w-80 bg-[#0E792E] text-white p-8 min-h-screen">
       <div className="flex items-center mb-12 ">
    
-        <img src="Logo_white.svg" alt="" className="h-10"/>
+        <img src="/Eduaid white logo.png" alt="EduAid" className="h-10"/>
       </div>
 
       <div className="space-y-6">

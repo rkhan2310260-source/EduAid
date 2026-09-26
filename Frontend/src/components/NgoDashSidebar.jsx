@@ -177,7 +177,7 @@ export default function NgoDashSidebar() {
       <div className="w-64 bg-gradient-to-b from-green-50 to-green-100 p-6 flex flex-col">
         <div className="flex justify-center items-center gap-2 mb-4">
           <div>
-            <img src="/logo.svg" alt="EduAid Logo" className="h-8" />
+            <img src="/Eduaid logo.png" alt="EduAid Logo" className="h-8" />
           </div>
         </div>
 

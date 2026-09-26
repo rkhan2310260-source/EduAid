@@ -18,6 +18,9 @@ public class NgoProjectRequestsDTO {
 
     private Integer ngoProjectId;
 
+    // ngoId resolved from the linked NgoProject for frontend navigation
+    private Integer ngoId;
+
     private Integer schoolId;
 
     private String requestType;

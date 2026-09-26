@@ -150,7 +150,7 @@ export default function DashSidebar() {
         <div className="flex items-center gap-2 mb-8">
     
           <div>
-          <img src="/logo_institute.svg" alt="EduAid Logo" className="h-7" />
+          <img src="/Eduaid institute logo.png" alt="EduAid Logo" className="h-7" />
           </div>
         </div>
 

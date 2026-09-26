@@ -23,20 +23,27 @@ export const SchoolProvider = ({ children }) => {
   // AI FIX: Fetch school data with total funds calculation
   const fetchSchoolData = async (schoolId) => {
     try {
-      const [schoolResponse, fundsResponse] = await Promise.all([
+      const [schoolResponse, fundsResponse, fundStatsResponse] = await Promise.all([
         fetch(`${API_BASE_URL}/schools/${schoolId}`),
-        fetch(`${API_BASE_URL}/schools/${schoolId}/total-funds-received`)
+        fetch(`${API_BASE_URL}/schools/${schoolId}/total-funds-received`),
+        fetch(`${API_BASE_URL}/school-projects/school/${schoolId}/fund-stats`)
       ]);
       
       if (schoolResponse.ok) {
         const schoolData = await schoolResponse.json();
         
-        // Add total funds received from backend calculation
         if (fundsResponse.ok) {
           const totalFunds = await fundsResponse.json();
           schoolData.totalFundsReceived = totalFunds;
         } else {
           schoolData.totalFundsReceived = 0;
+        }
+
+        if (fundStatsResponse.ok) {
+          const fundStats = await fundStatsResponse.json();
+          schoolData.totalFundsUtilized = fundStats.totalFundsUtilized || 0;
+        } else {
+          schoolData.totalFundsUtilized = 0;
         }
         
         setSchoolData(schoolData);
@@ -150,8 +157,8 @@ export const SchoolProvider = ({ children }) => {
     // AI FIX: Use backend calculation for total funds from all sources
     const totalFundsReceived = schoolData?.totalFundsReceived || 0;
     
-    const totalFundsUtilized = projectsData
-      .reduce((sum, project) => sum + (project.raisedAmount || 0), 0);
+    // Use backend-calculated value (fetched alongside school data)
+    const totalFundsUtilized = schoolData?.totalFundsUtilized || 0;
 
     return {
       totalStudents,

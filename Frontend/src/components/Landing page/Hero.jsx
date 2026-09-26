@@ -6,7 +6,7 @@ const Hero = () => {
   return (
     <section className="relative bg-[#E8FAED]">
       <div className="absolute  mx-20 my-7">
-        <img src="logo.svg" alt="" className="h-9"/>
+        <img src="/Eduaid logo.png" alt="EduAid" className="h-9"/>
       </div>
       <div className="grid lg:grid-cols-12 ">
         {/* Left Column */}

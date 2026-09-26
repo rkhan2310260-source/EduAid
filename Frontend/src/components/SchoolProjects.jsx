@@ -106,38 +106,46 @@ export default function SchoolProjects() {
 
   const handleProjectCreation = async (formData) => {
     try {
+      // formData is a plain state object from ProjectCreateModal
       const jsonData = {
         schoolId: parseInt(schoolId),
-        projectTitle: formData.get('project_title'),
-        projectDescription: formData.get('project_description'),
-        projectTypeId: parseInt(formData.get('project_type_id'))
+        projectTitle: formData.project_title,
+        projectDescription: formData.project_description,
+        projectTypeId: parseInt(formData.project_type_id),
+        requiredAmount: formData.required_amount ? parseFloat(formData.required_amount) : null,
       };
-      
+
+      if (!jsonData.projectTitle || !jsonData.projectTypeId) {
+        toast.error('Project title and type are required.');
+        return;
+      }
+
       const response = await fetch(`${API_BASE_URL}/school-projects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(jsonData)
+        body: JSON.stringify(jsonData),
       });
-      
+
       if (response.ok) {
         const projectData = await response.json();
-        
-        const projectImage = formData.get('project_image');
+
+        // Handle optional image upload (project_image is a File object in the state)
+        const projectImage = formData.project_image;
         if (projectImage && projectImage.size > 0) {
           const imageFormData = new FormData();
           imageFormData.append('image', projectImage);
-          
           await fetch(`${API_BASE_URL}/school-projects/${projectData.projectId}/image`, {
             method: 'POST',
             body: imageFormData,
           }).catch(error => console.error('Image upload failed:', error));
         }
-        
+
+        toast.success('Project created successfully!');
         setProjectModalOpen(false);
         refreshData(schoolId);
-        fetchFundStats(); // Refresh fund stats after creating new project
+        fetchFundStats();
       } else {
         const errorData = await response.text();
         console.error('Project creation failed:', errorData);

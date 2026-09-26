@@ -267,30 +267,35 @@ export default function NgoDashboard() {
 
   const handleProjectCreation = async (submitData) => {
     try {
+      // submitData is the raw formData state from ProjectCreateModal
       const jsonData = {
         ngoId: parseInt(ngoId),
-        projectName: submitData.projectTitle,
-        projectDescription: submitData.projectDescription,
-        projectTypeId: submitData.projectTypeId,
-        budget: submitData.requiredAmount || 0,
+        projectName: submitData.project_title,
+        projectDescription: submitData.project_description,
+        projectTypeId: submitData.project_type_id ? parseInt(submitData.project_type_id) : null,
+        budget: submitData.required_amount ? parseFloat(submitData.required_amount) : 0,
         status: 'ACTIVE'
       };
-      
-      console.log('Creating project from dashboard:', jsonData);
-      
+
+      if (!jsonData.projectName) {
+        toast.error('Project name is required.');
+        return;
+      }
+
+      console.log('Creating NGO project from dashboard:', jsonData);
+
       const response = await fetch('http://localhost:8081/api/ngo-projects', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(jsonData)
       });
-      
+
       if (response.ok) {
+        toast.success('Project created successfully!');
         setShowAddProject(false);
-        // Only refresh additional data, context will update automatically
+        // Refresh NGO context so all views get updated projects list
+        initializeForNgo(ngoId);
         fetchAdditionalData();
-        console.log('Project created successfully from dashboard');
       } else {
         const errorData = await response.text();
         console.error('Project creation failed:', errorData);

@@ -52,22 +52,15 @@ const ProjectCreateModal = ({ isOpen, onClose, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare data for backend
-    const submitData = {
-      projectTitle: formData.project_title,
-      projectDescription: formData.project_description,
-      projectTypeId: parseInt(formData.project_type_id),
-      requiredAmount: parseFloat(formData.required_amount)
-    };
-
-    // Call the onSubmit callback with JSON data
-    if (onSubmit) {
-      await onSubmit(submitData);
+    if (!formData.project_type_id) {
+      toast.error('Please select a project type');
+      return;
     }
 
-    // Reset form and close modal
-    resetForm();
-    onClose();
+    // Pass the plain formData state object to parent — parent controls close/reset
+    if (onSubmit) {
+      await onSubmit(formData);
+    }
   };
 
   const resetForm = () => {
