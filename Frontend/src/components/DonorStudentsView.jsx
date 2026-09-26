@@ -13,10 +13,8 @@ export default function DonorStudentsView() {
   const [marksheets, setMarksheets] = useState([]);
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    if (userId) {
-      refreshDonorData(userId);
-    }
+    // refreshDonorData() with no args reads userId from localStorage correctly
+    refreshDonorData();
   }, []);
 
   useEffect(() => {

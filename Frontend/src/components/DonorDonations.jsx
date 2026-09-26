@@ -2,36 +2,27 @@ import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import { Search, Coins, Clock, TrendingUp, FileText, CheckCircle, XCircle, AlertCircle, Download, Building2, GraduationCap, Heart, Target, Users } from "lucide-react";
 import DonorDashSidebar from './DonorDashSidebar';
+import { useDonor } from "../context/DonorContext";
 
 export default function DonorDonations() {
-  const { id: donorId } = useParams();
+  const { id: userId } = useParams(); // :id is userId, NOT donorId
+  const { donationsData, donorData, loading: contextLoading, refreshDonorData } = useDonor();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
-  const [donations, setDonations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Use context donations (already fetched with correct donorId)
+  // If context has no data yet, trigger a refresh
   useEffect(() => {
-    fetchDonations();
-  }, [donorId]);
-
-  const fetchDonations = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`http://localhost:8081/api/donations/donor/${donorId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setDonations(data);
-      } else {
-        setError('Failed to fetch donations');
-      }
-    } catch (err) {
-      setError('Error fetching donations: ' + err.message);
-    } finally {
-      setLoading(false);
+    if (!contextLoading && donationsData.length === 0) {
+      refreshDonorData(); // Reads userId from localStorage internally
     }
-  };
+  }, [userId]);
+
+  // donations comes from context — always in sync with other donor views
+  const donations = donationsData;
 
   const studentDonations = donations.filter((d) => d.purpose === "STUDENT_SPONSORSHIP" || d.donationType === "STUDENT_SPONSORSHIP");
   const projectDonations = donations.filter((d) => d.purpose === "SCHOOL_PROJECT" || d.donationType === "PROJECT_DONATION" || d.purpose === "NGO_PROJECT");
@@ -205,7 +196,7 @@ export default function DonorDonations() {
     window.URL.revokeObjectURL(url);
   };
 
-  if (loading) {
+  if (contextLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="text-center">

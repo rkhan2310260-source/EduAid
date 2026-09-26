@@ -21,7 +21,7 @@ export default function DonorProjectView() {
   const [totalUtilized, setTotalUtilized] = useState(0);
 
   useEffect(() => {
-    refreshDonorData(); // Use the updated function that handles userId internally
+    refreshDonorData(); // Reads userId from localStorage internally
     fetchProjectContributions();
   }, []);
 
@@ -149,7 +149,7 @@ export default function DonorProjectView() {
                 </div>
                 <div className="text-2xl font-bold">৳{totalContributed.toLocaleString()}</div>
                 <div className="text-xs text-gray-500 mt-1">
-                  Across {projectsData.length} projects
+                  Across {donatedProjects.length} project{donatedProjects.length !== 1 ? 's' : ''}
                 </div>
               </div>
 

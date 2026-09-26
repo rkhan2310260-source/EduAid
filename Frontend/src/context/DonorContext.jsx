@@ -291,13 +291,14 @@ const fetchGamificationData = async (donorId) => {
     const userId = userIdParam || getUserIdFromStorage();
     
     if (!userId) {
-      console.log('No donor ID found for user:', userIdParam || 'from localStorage');
+      console.log('DonorContext: No userId found for refresh');
       return;
     }
     
-    // Prevent multiple simultaneous calls
+    // Prevent multiple simultaneous calls using ref
     if (loadingRef.current) {
-      console.log('DonorContext: Already loading, skipping refresh for user:', userId);
+      console.log('DonorContext: Already loading, queuing refresh after current completes');
+      // Don't skip — just return; the component will re-trigger if needed
       return;
     }
     
@@ -308,7 +309,6 @@ const fetchGamificationData = async (donorId) => {
       const donorId = donor?.donorId || donor?.id;
       
       if (donorId) {
-        // Fetch all data in parallel for better performance
         await Promise.all([
           fetchDonationsData(donorId),
           fetchProjectsData(),
@@ -320,15 +320,41 @@ const fetchGamificationData = async (donorId) => {
           fetchDonorStats(donorId)
         ]);
       } else {
-        console.log('No donor ID found for user:', userId);
+        console.log('DonorContext: No donor found for userId:', userId);
       }
     } catch (error) {
-      console.error('Error refreshing donor data:', error);
+      console.error('DonorContext: Error refreshing donor data:', error);
     } finally {
       loadingRef.current = false;
       setLoading(false);
     }
-  }, []); // Remove loading dependency to prevent infinite loops
+  }, []);
+
+  // Refresh by donorId directly (use when you already have the donorId, not userId)
+  const refreshByDonorId = useCallback(async (donorId) => {
+    if (!donorId) return;
+    if (loadingRef.current) return;
+    
+    loadingRef.current = true;
+    setLoading(true);
+    try {
+      await Promise.all([
+        fetchDonationsData(donorId),
+        fetchProjectsData(),
+        fetchSchoolsData(),
+        fetchSponsoredStudentsData(donorId),
+        fetchHighRiskStudentsData(),
+        fetchGamificationData(donorId),
+        fetchUniqueSchoolsCount(donorId),
+        fetchDonorStats(donorId)
+      ]);
+    } catch (error) {
+      console.error('DonorContext: Error in refreshByDonorId:', error);
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+    }
+  }, []);
 
   // Initialize data on provider mount
   const initializeDonorData = async () => {
@@ -367,10 +393,10 @@ const fetchGamificationData = async (donorId) => {
     fetchGamificationData,
     createDonation,
     refreshDonorData,
-    quickRefresh, // Easy refresh function
+    refreshByDonorId,   // Use this when you already have donorId (not userId)
+    quickRefresh,
     initializeDonorData,
     API_BASE_URL,
-    // Helper functions for filtered data
     getDonorProjects: () => projectsData,
     getDonorDonations: () => donationsData,
     getDonorStats: () => {
@@ -379,7 +405,7 @@ const fetchGamificationData = async (donorId) => {
       const activeProjects = projectsData.filter(p => p.status === 'ACTIVE').length;
       return { totalDonated, uniqueSchools, activeProjects };
     },
-    getUserIdFromStorage // Export the helper function for other components to use
+    getUserIdFromStorage
   };
 
   return (

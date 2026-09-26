@@ -29,10 +29,11 @@ export default function DonorReporting() {
 
 
   useEffect(() => {
-    if (donorId && !loading && (!donorStats || donationsData.length === 0)) {
-      refreshDonorData(donorId);
+    // refreshDonorData() with no args reads userId from localStorage correctly
+    if (!donorStats || donationsData.length === 0) {
+      refreshDonorData();
     }
-  }, [donorId]); // Only refresh if data is not already loaded
+  }, []); // Only refresh if data is not already loaded
 
   // Memoize expensive calculations to prevent recalculation on every render
   const calculatedStats = useMemo(() => {

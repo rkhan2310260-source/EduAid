@@ -7,10 +7,12 @@ import CreateCampaignModal from './Modal/CreateCampaignModal';
 import NgoRequestsPanel from './NgoRequestsPanel';
 import CampaignViewModal from './Modal/CampaignViewModal';
 import SchoolInviteModal from './Modal/SchoolInviteModal';
+import { useNgo } from '../context/NgoContext';
 
 export default function NgoProjects() {
   const { ngoId } = useParams();
   const navigate = useNavigate();
+  const { initializeForNgo } = useNgo();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -83,6 +85,8 @@ export default function NgoProjects() {
         const result = await response.json();
         console.log('Campaign created successfully:', result);
         fetchProjects();
+        // Also sync NgoContext so other views (NgoDashboard) stay up to date
+        initializeForNgo(ngoId);
         toast.success('Campaign created successfully!');
       } else {
         const errorText = await response.text();

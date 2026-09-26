@@ -15,10 +15,11 @@ export default function DonorGamification() {
   } = useDonor();
 
   useEffect(() => {
-    if (donorId && !loading && (!gamificationData || !donorStats)) {
-      refreshDonorData(donorId);
+    // refreshDonorData() with no args reads userId from localStorage correctly
+    if (!gamificationData || !donorStats) {
+      refreshDonorData();
     }
-  }, [donorId]); // Only refresh if data is not already loaded
+  }, []); // Only refresh if data is not already loaded
 
   const getBadgeIcon = (badgeName) => {
     const badges = {

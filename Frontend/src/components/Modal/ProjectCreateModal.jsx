@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Upload, Calendar } from "lucide-react";
 import { toast } from 'react-toastify';
 
@@ -16,6 +16,14 @@ const ProjectCreateModal = ({ isOpen, onClose, onSubmit }) => {
 
   const [imagePreview, setImagePreview] = useState(null);
   const [charCount, setCharCount] = useState(0);
+
+  // Reset form when modal closes so re-opening always shows a blank form
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
+
 
   const priorityLevels = [
     { value: "low", label: "Low" },
